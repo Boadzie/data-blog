@@ -1,1 +1,3 @@
-Example site modified from https://github.com/gohugoio/hugoBasicExample
+# Data Blog
+
+My official Data Blog

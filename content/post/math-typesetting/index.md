@@ -1,9 +1,10 @@
 ---
 author: Hugo Authors
-date: "2019-03-08"
+date: "2021-05-15"
 description: A brief guide to setup KaTeX
 math: true
 title: Math Typesetting
+category: R
 ---
 
 Mathematical notation in a Hugo project can be enabled by using third party JavaScript libraries.
