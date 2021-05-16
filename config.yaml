@@ -5,7 +5,7 @@ paginate: 5
 title: Daniel Boadzie
 
 # Change it to your Disqus shortname before using
-disqusShortname: hugo-theme-stack
+disqusShortname: https-boadzie-blog-netlify-app
 
 # GA Tracking ID
 googleAnalytics:
@@ -87,7 +87,7 @@ params:
     defaultImage:
         opengraph:
             enabled: false
-            local: false
+            local: true
             src:
 
     colorScheme:

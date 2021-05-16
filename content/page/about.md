@@ -4,13 +4,54 @@ aliases:
 - about-Daniel Boadzie
 - contact
 date: "2021-05-15"
-lastmod: "2021-05-15"
+lastmod: "2021-05-16"
 menu:
   main:
     pre: user
     weight: -90
 title: About
-description: About Me
+description: Google certified Professional Data Analyst with a passion for data and discovering insights that inform decisions.
 ---
 
-Boadzie Daniel
+![Goodle Data Analyst Certificate](https://images.credly.com/size/340x340/images/75a78e9d-9a9b-4b62-906d-8a48017e2afe/Google_Certs_DA.png)
+
+## Skills
+
+Name  
+---- |
+ Programming (R / Python) |
+ Database Queries SQL(Postgresql)  |
+ Data Visualization Tableau | R |
+ Dashboards & Reports(Rmarkdown)
+ 
+ 
+## Profile
+
+### **Graduate - Google Data Analytics Certificate.**
+_April - May 2021_
+
+1. Used R, SQL to organize, clean data and analyze data.
+2. Used Tableau and Excel visualize
+tell meaningful stories in data.
+
+[See It](https://coursera.org/share/33b0edc7b4dfb09036d7c7d91dae84d6)
+
+
+### **Data scientist 4th-IR**
+_January - December 2020_
+
+1. Cleaned large data with SQL. 
+2. Built robust AI solutions to solve problems in Health and Finance.
+
+[See it](https://www.4th-ir.com/)
+
+
+### **AI Instructor/Director - Trestle Academy Ghana(TAG)**
+_Since July 2019_
+
+1. Training University student to acquire skills in Data Science and AI.
+2. Supervised and organized Hackathons with price awards.
+3. Placed training graduates in companies.
+
+
+[See it](https://www.trestleacademy.club/)

@@ -90,7 +90,7 @@ params:
     defaultImage:
         opengraph:
             enabled: false
-            local: false
+            local: true
             src:
 
     colorScheme:
