@@ -17,12 +17,12 @@ description: Google certified Professional Data Analyst with a passion for data 
 
 ## Skills
 
-Name  
----- |
- Programming (R / Python) |
- Database Queries SQL(Postgresql)  |
- Data Visualization Tableau | R |
- Dashboards & Reports(Rmarkdown)
+Technical                         | Soft
+----------------------------------|------------------------------------
+ Programming (R / Python)         | Problem-Solving 
+ Database Queries SQL(Postgresql) | Detail-Oriented
+ Data Visualization Tableau/R     | Persistent
+ Dashboards & Reports(Rmarkdown)  | Adaptable
  
  
 ## Profile
@@ -55,3 +55,9 @@ _Since July 2019_
 
 
 [See it](https://www.trestleacademy.club/)
+
+
+ ## Projects
+ 
+ 1. [Tech content writer for Analytics Vidhya.](https://medium.com/analytics-vidhya/streamlit-the-awesome-new-way-to-deploy-data-science-machine-learning-apps-6929737b7a68)
+ 2. [Contribution to open source (Streamlit App Gallery)](https://awesome-streamlit.org/)

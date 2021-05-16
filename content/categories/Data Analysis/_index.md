@@ -1,5 +1,5 @@
 ---
 title: "Data Analysis"
-description: "A description here"
+description: "Data Analytics is the science of data"
 image: "data_analysis.svg"
 ---
