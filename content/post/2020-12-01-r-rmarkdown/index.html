@@ -47,4 +47,11 @@ pie(
 Figure 1: A fancy pie chart.
 </p>
 </div>
+<pre class="r"><code>library(ggplot2)
+library(magrittr)
+
+mtcars %&gt;% 
+  ggplot(aes(cyl)) +
+  geom_bar(aes(color=cyl))</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
 </div>
