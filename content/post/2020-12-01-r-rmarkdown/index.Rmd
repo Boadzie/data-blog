@@ -3,12 +3,14 @@ title: "Data Exploration with `DataExplorer`"
 author: "Daniel Boadzie"
 date: "2021-05-17"
 categories: ["Data Cleaning"]
-tags: ["Exporation", "Data Exploration", "EDA"]
+tags: ["Data Exploration", "EDA"]
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(collapse = TRUE)
 ```
+
+![](https://images.unsplash.com/photo-1493953659556-556b14bdaca8?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1191&q=80)
 
 ## Introduction 
 
