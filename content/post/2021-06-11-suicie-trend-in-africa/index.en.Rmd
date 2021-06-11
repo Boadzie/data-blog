@@ -1,0 +1,142 @@
+---
+title: 'Suicide Trend in Africa '
+author: Daniel Boadzie
+date: '2021-06-11'
+slug: suicide-trend-in-africa
+categories:
+  - Data Analysis
+tags:
+  - Data Analysis
+  - Data Cleaning
+  - Analysis
+description: ~
+image: https://images.unsplash.com/photo-1564121211835-e88c852648ab?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80
+math: ~
+license: ~
+hidden: no
+comments: yes
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# load libraries for analysis
+library(pacman)
+
+p_load(tidyverse, ggpubr, ggthemes)
+```
+
+
+
+Suicide is a one of the major causes of death in our society today. Being a victim of suicide can be a traumatizing experience that is hard to forget. In this report we analyze the suicide trends across the world with emphasis on Ghana.
+
+### Ask
+
+1. Which year recorded the highest suicide?
+2. What are the numbers for Ghana?
+3. Why is it so?
+
+
+
+### Prepare
+
+The data is provided by World Bank via [Gapminder.org](https://www.gapminder.org/data/) under CC-BY license.
+
+The has two columns country and a range of years from 1990 to 2016.
+
+
+### Process
+
+```{r}
+# load the data
+suicide <- read_csv("suicide_total_deaths.csv")
+
+
+# get a glimpse
+glimpse(suicide)
+```
+
+#### Data Formatting
+We can see that we are dealing with a wide dataset that we need to make long for easy view and analysis.
+
+```{r}
+suicide <- suicide %>% 
+  pivot_longer(`1990`:`2016`, names_to = "year", values_to = "deaths")
+
+glimpse(suicide)
+```
+
+Now lets convert deaths column to an integer. But first we need to replace `k` with 1000.
+
+```{r}
+# replace `k` (1000) with actual values
+suicide$deaths <- as.numeric(sub("k", "e3", suicide$deaths,  fixed = TRUE)) 
+
+glimpse(suicide)
+
+```
+
+Lets convert deaths to numeric
+
+```{r}
+suicide <- suicide %>% 
+  mutate(deaths = as.numeric(deaths))
+
+glimpse(suicide)
+```
+
+
+#### Check for NAs
+
+```{r}
+colSums(is.na(suicide)) # check for NAs
+```
+
+Convert year column to numeric
+```{r}
+suicide %>% 
+  mutate(year = as.integer(year))
+```
+
+
+### Analyze
+
+#### Summary Statistics
+Get summary statistics on the `deaths` column
+
+```{r}
+suicide$deaths %>% 
+  summary()
+```
+
+Write new data to `csv` for further analysis.
+
+```{r}
+write_csv(suicide, "suicide_total_deaths_clean.csv")
+```
+
+
+#### Visualization
+
+```{r, fig.align='center', fig.width=14, fig.height=10}
+suicide %>% 
+  select(country, deaths, year) %>% 
+  filter(country == c("Ghana", "Nigeria", "Gambia") ) %>% 
+  group_by(year) %>% 
+  ggplot(aes(x=country, y=deaths)) +
+  geom_col(aes(fill=year), position = "dodge", size=4) +
+  coord_flip() +
+  theme(legend.position = "bottom", plot.title = element_text(size = 20), axis.title.x = element_text(size = 18),  axis.title.y = element_text(size = 18)) +
+   labs(title = "Suicide Deaths in Africa ", x = "Country", y="Deaths", fontface = "bold") +
+  theme_economist()
+  
+```
+
+The clearly an upward trend in suicide deaths in Africa. It is worth investigating why this might be the case.
+
+In this article we cleaned, analyzed and visualized world suicide data with emphasis on Africa. 
+
+
+

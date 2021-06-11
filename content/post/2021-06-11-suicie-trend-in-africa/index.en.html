@@ -1,0 +1,164 @@
+---
+title: 'Suicide Trend in Africa '
+author: Daniel Boadzie
+date: '2021-06-11'
+slug: suicide-trend-in-africa
+categories:
+  - Data Analysis
+tags:
+  - Data Analysis
+  - Data Cleaning
+  - Analysis
+description: ~
+image: https://images.unsplash.com/photo-1564121211835-e88c852648ab?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80
+math: ~
+license: ~
+hidden: no
+comments: yes
+---
+
+<script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
+
+
+<p>Suicide is a one of the major causes of death in our society today. Being a victim of suicide can be a traumatizing experience that is hard to forget. In this report we analyze the suicide trends across the world with emphasis on Ghana.</p>
+<div id="ask" class="section level3">
+<h3>Ask</h3>
+<ol style="list-style-type: decimal">
+<li>Which year recorded the highest suicide?</li>
+<li>What are the numbers for Ghana?</li>
+<li>Why is it so?</li>
+</ol>
+</div>
+<div id="prepare" class="section level3">
+<h3>Prepare</h3>
+<p>The data is provided by World Bank via <a href="https://www.gapminder.org/data/">Gapminder.org</a> under CC-BY license.</p>
+<p>The has two columns country and a range of years from 1990 to 2016.</p>
+</div>
+<div id="process" class="section level3">
+<h3>Process</h3>
+<pre class="r"><code># load the data
+suicide &lt;- read_csv(&quot;suicide_total_deaths.csv&quot;)</code></pre>
+<pre><code>## 
+## ── Column specification ────────────────────────────────────────────────────────
+## cols(
+##   .default = col_character()
+## )
+## ℹ Use `spec()` for the full column specifications.</code></pre>
+<pre class="r"><code># get a glimpse
+glimpse(suicide)</code></pre>
+<pre><code>## Rows: 194
+## Columns: 28
+## $ country &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Angola&quot;, &quot;Albania&quot;, &quot;Andorra&quot;, &quot;United Arab Em…
+## $ `1990`  &lt;chr&gt; &quot;703&quot;, &quot;645&quot;, &quot;127&quot;, &quot;5.45&quot;, &quot;70.8&quot;, &quot;3300&quot;, &quot;134&quot;, &quot;3.28&quot;, &quot;1…
+## $ `1991`  &lt;chr&gt; &quot;754&quot;, &quot;653&quot;, &quot;130&quot;, &quot;5.82&quot;, &quot;77.6&quot;, &quot;3420&quot;, &quot;136&quot;, &quot;3.36&quot;, &quot;1…
+## $ `1992`  &lt;chr&gt; &quot;820&quot;, &quot;667&quot;, &quot;131&quot;, &quot;6.18&quot;, &quot;84.2&quot;, &quot;3580&quot;, &quot;146&quot;, &quot;3.39&quot;, &quot;1…
+## $ `1993`  &lt;chr&gt; &quot;894&quot;, &quot;700&quot;, &quot;135&quot;, &quot;6.33&quot;, &quot;91.7&quot;, &quot;3720&quot;, &quot;155&quot;, &quot;3.41&quot;, &quot;1…
+## $ `1994`  &lt;chr&gt; &quot;977&quot;, &quot;735&quot;, &quot;136&quot;, &quot;6.36&quot;, &quot;99.2&quot;, &quot;3890&quot;, &quot;158&quot;, &quot;3.45&quot;, &quot;1…
+## $ `1995`  &lt;chr&gt; &quot;1050&quot;, &quot;756&quot;, &quot;142&quot;, &quot;6.17&quot;, &quot;111&quot;, &quot;4020&quot;, &quot;160&quot;, &quot;3.47&quot;, &quot;1…
+## $ `1996`  &lt;chr&gt; &quot;1100&quot;, &quot;738&quot;, &quot;150&quot;, &quot;6.04&quot;, &quot;117&quot;, &quot;4160&quot;, &quot;158&quot;, &quot;3.53&quot;, &quot;1…
+## $ `1997`  &lt;chr&gt; &quot;1130&quot;, &quot;738&quot;, &quot;162&quot;, &quot;6.28&quot;, &quot;125&quot;, &quot;4290&quot;, &quot;149&quot;, &quot;3.6&quot;, &quot;1.…
+## $ `1998`  &lt;chr&gt; &quot;1170&quot;, &quot;816&quot;, &quot;170&quot;, &quot;6.24&quot;, &quot;129&quot;, &quot;4360&quot;, &quot;143&quot;, &quot;3.56&quot;, &quot;1…
+## $ `1999`  &lt;chr&gt; &quot;1200&quot;, &quot;809&quot;, &quot;175&quot;, &quot;6.2&quot;, &quot;136&quot;, &quot;4440&quot;, &quot;142&quot;, &quot;3.5&quot;, &quot;1.6…
+## $ `2000`  &lt;chr&gt; &quot;1250&quot;, &quot;819&quot;, &quot;175&quot;, &quot;6.19&quot;, &quot;143&quot;, &quot;4520&quot;, &quot;135&quot;, &quot;3.54&quot;, &quot;1…
+## $ `2001`  &lt;chr&gt; &quot;1300&quot;, &quot;842&quot;, &quot;184&quot;, &quot;6.14&quot;, &quot;152&quot;, &quot;4600&quot;, &quot;138&quot;, &quot;3.59&quot;, &quot;1…
+## $ `2002`  &lt;chr&gt; &quot;1360&quot;, &quot;863&quot;, &quot;191&quot;, &quot;6.09&quot;, &quot;163&quot;, &quot;4620&quot;, &quot;142&quot;, &quot;3.6&quot;, &quot;1.…
+## $ `2003`  &lt;chr&gt; &quot;1450&quot;, &quot;916&quot;, &quot;196&quot;, &quot;6.34&quot;, &quot;194&quot;, &quot;4530&quot;, &quot;146&quot;, &quot;3.7&quot;, &quot;1.…
+## $ `2004`  &lt;chr&gt; &quot;1530&quot;, &quot;957&quot;, &quot;201&quot;, &quot;6.84&quot;, &quot;229&quot;, &quot;4440&quot;, &quot;162&quot;, &quot;3.75&quot;, &quot;1…
+## $ `2005`  &lt;chr&gt; &quot;1600&quot;, &quot;980&quot;, &quot;204&quot;, &quot;7.04&quot;, &quot;256&quot;, &quot;4470&quot;, &quot;181&quot;, &quot;3.77&quot;, &quot;1…
+## $ `2006`  &lt;chr&gt; &quot;1650&quot;, &quot;1010&quot;, &quot;204&quot;, &quot;7.19&quot;, &quot;293&quot;, &quot;4490&quot;, &quot;202&quot;, &quot;3.77&quot;, &quot;…
+## $ `2007`  &lt;chr&gt; &quot;1680&quot;, &quot;1040&quot;, &quot;204&quot;, &quot;7.39&quot;, &quot;347&quot;, &quot;4560&quot;, &quot;206&quot;, &quot;3.81&quot;, &quot;…
+## $ `2008`  &lt;chr&gt; &quot;1710&quot;, &quot;1060&quot;, &quot;205&quot;, &quot;7.53&quot;, &quot;312&quot;, &quot;4610&quot;, &quot;219&quot;, &quot;3.91&quot;, &quot;…
+## $ `2009`  &lt;chr&gt; &quot;1750&quot;, &quot;1080&quot;, &quot;201&quot;, &quot;7.67&quot;, &quot;358&quot;, &quot;4640&quot;, &quot;225&quot;, &quot;4.01&quot;, &quot;…
+## $ `2010`  &lt;chr&gt; &quot;1760&quot;, &quot;1100&quot;, &quot;195&quot;, &quot;7.76&quot;, &quot;399&quot;, &quot;4650&quot;, &quot;232&quot;, &quot;4.12&quot;, &quot;…
+## $ `2011`  &lt;chr&gt; &quot;1810&quot;, &quot;1120&quot;, &quot;191&quot;, &quot;7.85&quot;, &quot;423&quot;, &quot;4700&quot;, &quot;241&quot;, &quot;4.22&quot;, &quot;…
+## $ `2012`  &lt;chr&gt; &quot;1870&quot;, &quot;1140&quot;, &quot;188&quot;, &quot;7.92&quot;, &quot;436&quot;, &quot;4800&quot;, &quot;257&quot;, &quot;4.28&quot;, &quot;…
+## $ `2013`  &lt;chr&gt; &quot;1990&quot;, &quot;1170&quot;, &quot;186&quot;, &quot;7.97&quot;, &quot;443&quot;, &quot;4920&quot;, &quot;255&quot;, &quot;4.39&quot;, &quot;…
+## $ `2014`  &lt;chr&gt; &quot;2080&quot;, &quot;1200&quot;, &quot;184&quot;, &quot;7.72&quot;, &quot;445&quot;, &quot;5010&quot;, &quot;254&quot;, &quot;4.47&quot;, &quot;…
+## $ `2015`  &lt;chr&gt; &quot;2170&quot;, &quot;1220&quot;, &quot;183&quot;, &quot;7.78&quot;, &quot;446&quot;, &quot;5010&quot;, &quot;257&quot;, &quot;4.54&quot;, &quot;…
+## $ `2016`  &lt;chr&gt; &quot;2250&quot;, &quot;1230&quot;, &quot;181&quot;, &quot;7.84&quot;, &quot;445&quot;, &quot;5010&quot;, &quot;252&quot;, &quot;4.57&quot;, &quot;…</code></pre>
+<div id="data-formatting" class="section level4">
+<h4>Data Formatting</h4>
+<p>We can see that we are dealing with a wide dataset that we need to make long for easy view and analysis.</p>
+<pre class="r"><code>suicide &lt;- suicide %&gt;% 
+  pivot_longer(`1990`:`2016`, names_to = &quot;year&quot;, values_to = &quot;deaths&quot;)
+
+glimpse(suicide)</code></pre>
+<pre><code>## Rows: 5,238
+## Columns: 3
+## $ country &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;A…
+## $ year    &lt;chr&gt; &quot;1990&quot;, &quot;1991&quot;, &quot;1992&quot;, &quot;1993&quot;, &quot;1994&quot;, &quot;1995&quot;, &quot;1996&quot;, &quot;1997&quot;…
+## $ deaths  &lt;chr&gt; &quot;703&quot;, &quot;754&quot;, &quot;820&quot;, &quot;894&quot;, &quot;977&quot;, &quot;1050&quot;, &quot;1100&quot;, &quot;1130&quot;, &quot;11…</code></pre>
+<p>Now lets convert deaths column to an integer. But first we need to replace <code>k</code> with 1000.</p>
+<pre class="r"><code># replace `k` (1000) with actual values
+suicide$deaths &lt;- as.numeric(sub(&quot;k&quot;, &quot;e3&quot;, suicide$deaths,  fixed = TRUE)) 
+
+glimpse(suicide)</code></pre>
+<pre><code>## Rows: 5,238
+## Columns: 3
+## $ country &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;A…
+## $ year    &lt;chr&gt; &quot;1990&quot;, &quot;1991&quot;, &quot;1992&quot;, &quot;1993&quot;, &quot;1994&quot;, &quot;1995&quot;, &quot;1996&quot;, &quot;1997&quot;…
+## $ deaths  &lt;dbl&gt; 703, 754, 820, 894, 977, 1050, 1100, 1130, 1170, 1200, 1250, 1…</code></pre>
+<p>Lets convert deaths to numeric</p>
+<pre class="r"><code>suicide &lt;- suicide %&gt;% 
+  mutate(deaths = as.numeric(deaths))
+
+glimpse(suicide)</code></pre>
+<pre><code>## Rows: 5,238
+## Columns: 3
+## $ country &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;A…
+## $ year    &lt;chr&gt; &quot;1990&quot;, &quot;1991&quot;, &quot;1992&quot;, &quot;1993&quot;, &quot;1994&quot;, &quot;1995&quot;, &quot;1996&quot;, &quot;1997&quot;…
+## $ deaths  &lt;dbl&gt; 703, 754, 820, 894, 977, 1050, 1100, 1130, 1170, 1200, 1250, 1…</code></pre>
+</div>
+<div id="check-for-nas" class="section level4">
+<h4>Check for NAs</h4>
+<pre class="r"><code>colSums(is.na(suicide)) # check for NAs</code></pre>
+<pre><code>## country    year  deaths 
+##       0       0       0</code></pre>
+<p>Convert year column to numeric</p>
+<pre class="r"><code>suicide %&gt;% 
+  mutate(year = as.integer(year))</code></pre>
+<pre><code>## # A tibble: 5,238 x 3
+##    country      year deaths
+##    &lt;chr&gt;       &lt;int&gt;  &lt;dbl&gt;
+##  1 Afghanistan  1990    703
+##  2 Afghanistan  1991    754
+##  3 Afghanistan  1992    820
+##  4 Afghanistan  1993    894
+##  5 Afghanistan  1994    977
+##  6 Afghanistan  1995   1050
+##  7 Afghanistan  1996   1100
+##  8 Afghanistan  1997   1130
+##  9 Afghanistan  1998   1170
+## 10 Afghanistan  1999   1200
+## # … with 5,228 more rows</code></pre>
+</div>
+</div>
+<div id="analyze" class="section level3">
+<h3>Analyze</h3>
+<div id="summary-statistics" class="section level4">
+<h4>Summary Statistics</h4>
+<p>Get summary statistics on the <code>deaths</code> column</p>
+<pre class="r"><code>suicide$deaths %&gt;% 
+  summary()</code></pre>
+<pre><code>##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+##      1.27    119.00    573.00   4281.00   1960.00 249000.00</code></pre>
+<p>Write new data to <code>csv</code> for further analysis.</p>
+<pre class="r"><code>write_csv(suicide, &quot;suicide_total_deaths_clean.csv&quot;)</code></pre>
+</div>
+<div id="visualization" class="section level4">
+<h4>Visualization</h4>
+<pre class="r"><code>suicide %&gt;% 
+  select(country, deaths, year) %&gt;% 
+  filter(country == c(&quot;Ghana&quot;, &quot;Nigeria&quot;, &quot;Gambia&quot;) ) %&gt;% 
+  group_by(year) %&gt;% 
+  ggplot(aes(x=country, y=deaths)) +
+  geom_col(aes(fill=year), position = &quot;dodge&quot;, size=4) +
+  coord_flip() +
+  theme(legend.position = &quot;bottom&quot;, plot.title = element_text(size = 20), axis.title.x = element_text(size = 18),  axis.title.y = element_text(size = 18)) +
+   labs(title = &quot;Suicide Deaths in Africa &quot;, x = &quot;Country&quot;, y=&quot;Deaths&quot;, fontface = &quot;bold&quot;) +
+  theme_economist()</code></pre>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-9-1.png" width="1344" style="display: block; margin: auto;" /></p>
+<p>The clearly an upward trend in suicide deaths in Africa. It is worth investigating why this might be the case.</p>
+<p>In this article we cleaned, analyzed and visualized world suicide data with emphasis on Africa.</p>
+</div>
+</div>
