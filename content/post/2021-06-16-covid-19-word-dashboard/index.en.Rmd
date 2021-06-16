@@ -1,0 +1,23 @@
+---
+title: COVID-19 World Dashboard
+author: Daniel Boadzie
+date: '2021-06-16'
+slug: covid-19-world-dashboard
+categories:
+  - Dashboards
+tags:
+  - Report
+  - Plot
+  - Visualization
+  - COVID-19
+description: ~
+image: https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80
+math: ~
+license: ~
+hidden: no
+comments: yes
+---
+
+This is a live COVID-19 Dashboard built with Data Studio with Data scraped from [Worldometer](https://www.worldometers.info/coronavirus/)
+
+<iframe width="1080" height="600" src="https://datastudio.google.com/embed/reporting/72ef05c3-0bca-498c-9dd7-a3b58ead7055/page/m3bPC" frameborder="0" style="border:0" allowfullscreen></iframe>
