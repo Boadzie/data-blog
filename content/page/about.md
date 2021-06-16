@@ -11,9 +11,18 @@ menu:
     weight: -90
 title: About
 description: Google certified Professional Data Analyst with a passion for data and discovering insights that inform decisions.
+
 ---
 
+[Github](https://github.com/Boadzie)
+[LinkedIn](https://www.linkedin.com/in/daniel-boadzie-5ab68213a/)
+[Twitter](https://twitter.com/boadzie)
+[Credly](https://www.credly.com/users/daniel-boadzie/badges)
+[Facebook](https://web.facebook.com/profile.php?id=100006259099181&_rdc=1&_rdr)
+
+
 ![Goodle Data Analyst Certificate](https://images.credly.com/size/340x340/images/75a78e9d-9a9b-4b62-906d-8a48017e2afe/Google_Certs_DA.png)
+
 
 ## Skills
 
