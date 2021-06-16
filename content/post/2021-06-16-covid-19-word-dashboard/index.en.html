@@ -21,6 +21,42 @@ comments: yes
 <script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
 
 
-<p>This is a live COVID-19 Dashboard built with Data Studio with Data scraped from <a href="https://www.worldometers.info/coronavirus/">Worldometer</a></p>
-<iframe width="100%" height="600" src="https://datastudio.google.com/embed/reporting/72ef05c3-0bca-498c-9dd7-a3b58ead7055/page/m3bPC" frameborder="0" style="border:0" allowfullscreen>
+<p>Ever wanted to make a dashboard, maybe to visualize some KPI or visualize COVID-19 statistics? There some many ways to build a dashboard. You can use Business Intelligence tools like tableau, looker or Google Data Studio. These dashboards offer the following advantages;</p>
+<ol style="list-style-type: decimal">
+<li><p>They can show live data that can be updated automatically(That is what we will build in this tutorial).</p></li>
+<li><p>They can allow for up-to-date filtering and viewing of data.</p></li>
+<li><p>Make timely informed-decision making possible.</p></li>
+</ol>
+<p>In, this article we will build a live dashboard connected to live data. The dashboard will show COVID-19 updates globally.</p>
+<p>We will build the dashboard with Data Studio with data scraped from <a href="https://www.worldometers.info/coronavirus/">Worldometer</a></p>
+<p>First, we will use Google Sheet to scrape the data from <a href="https://www.worldometers.info/coronavirus/">Worldometer</a>. To scrape data with Google Sheets, do the following;</p>
+<ol style="list-style-type: decimal">
+<li><p>Copy the <a href="https://www.worldometers.info/coronavirus/">Worldometer</a> url.</p></li>
+<li><p>open a new empty sheet</p></li>
+<li><p>Type the following code into the first cell and press enter</p></li>
+</ol>
+<pre><code>=IMPORTHTML(&quot;https://www.worldometers.info/coronavirus/&quot;, &quot;table&quot;, 1)</code></pre>
+<p>The formula has the following arguments;</p>
+<blockquote>
+<p>IMPORTHTML(url, query, index)</p>
+<p>url - The URL of the page to examine, including protocol (e.g. <a href="http://" class="uri">http://</a>).
+The value for url must either be enclosed in quotation marks or be a reference to a cell containing the appropriate text.</p>
+<p>query - Either “list” or “table” depending on what type of structure
+contains the desired data.</p>
+<p>index - The index, starting at 1, which identifies which table or list as
+defined in the HTML source should be returned.
+The indices for lists and tables are maintained separately, so there may
+be both a list and a table with index 1 if both types of elements exist on the HTML page.</p>
+<p>(from Google)
+`</p>
+</blockquote>
+<p>The output should look like the following;</p>
+<div class="figure">
+<img src="./scrape_data.png?width=14" alt="" />
+<p class="caption">COVID Data</p>
+</div>
+<p>We now use this data in Google Data Studio to build the dashboard below. The dashboard will automately update every 15 minutes. Cool right? I know!!</p>
+<iframe width="100%" height="450" src="https://datastudio.google.com/embed/reporting/72ef05c3-0bca-498c-9dd7-a3b58ead7055/page/m3bPC" frameborder="0" style="border:0" allowfullscreen>
 </iframe>
+<p>With BI tools like Google Data Studio, telling stories in data is a breeze. I hope this will inspire to try it out on your own.</p>
+<p>Happy Analyzing!!</p>
