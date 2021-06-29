@@ -1,0 +1,199 @@
+---
+title: "Web Scrapping with rvest"
+author: "Daniel Boadzie"
+date: '2021-06-29'
+output: pdf_document
+categories: Web Scrapping
+tags:
+- Data Cleaning
+- Data Extraction
+- Web Harvesting
+description: null
+image: https://cdn.pixabay.com/photo/2017/08/16/11/45/pickup-truck-2647492_1280.png
+math: null
+license: null
+hidden: no
+comments: yes
+slug: web-scrapping-with-rvest
+---
+
+Web scrapping is the act of extracting data from web pages. It is one of the best ways of getting data from from a website. You can get data from web elements like tables, divs, etc. with web scrapping. 
+
+Note, that you may need to get permission or find out if a website allows scrapping before doing so from a `robots.txt` file on a website. Fortunately, the R `robotstxt` package can help us find out this important information.
+
+## How does it Work
+
+To scrape data from a website you need a working knowledge of `HTML` and `CSS`. These together with `JavaScript` are the lingua franca of the web. A good understanding of `HMTL` tags `CSS` selectors like class, ids, etc will help you when scrapping a website.
+
+In this article, we will scrap [IMDB](https://www.imdb.com/chart/top/)'s top rated movies. We will focus on the movie's title, year, rank and rating. Let's get started.
+
+
+```{r}
+# load the libraries
+# pacman enable to easily load multiple packages at a time
+library(pacman)
+
+p_load(rvest, dplyr, ggplot2, robotstxt, stringr, ggthemes)
+```
+
+Check if the website can be scrapped.
+
+```{r}
+paths_allowed("https://www.imdb.com/chart/top") # yes we can
+```
+
+We will scrap top movies title, year, rating and then analyze it.
+
+```{r}
+url = "https://www.imdb.com/chart/top"
+
+top_movies <- read_html(url) 
+  
+```
+
+### Get all title
+
+```{r}
+# get all the titles
+movie_title <- top_movies %>% 
+  html_nodes(".titleColumn a") %>% 
+  html_text2() %>% 
+  as.vector()
+```
+
+
+### Get all year
+
+```{r}
+# get all the year
+year <- top_movies %>% 
+  html_nodes("span.secondaryInfo") %>% 
+  html_text2() %>% 
+  str_replace_all("\\(|\\)", "") %>% 
+  as.integer()
+
+head(year)
+typeof(year)
+```
+
+### Get all rating
+```{r}
+# get all rating
+rating <- top_movies %>% 
+  html_nodes(".ratingColumn strong") %>% 
+  html_text2() %>% 
+  as.numeric() 
+```
+
+### Get all rank
+
+Lets get the ranks as well
+
+```{r}
+rank <- top_movies %>% 
+  html_nodes("td.titleColumn") %>% 
+  html_text2() %>% 
+  str_split(" ") %>% 
+  lapply(., function(movie){
+    movie[1]
+  }) %>% 
+  str_replace_all("\\.", "") %>% 
+  as.integer()
+  
+```
+
+
+### Create a `tibble`
+
+Now lets combine all to create a tibble.
+
+```{r}
+movie_tibble <- tibble(
+  title = movie_title,
+  year = year,
+  rating = rating, 
+  rank = rank
+)
+
+head(movie_tibble)
+#View(movie_tibble)
+```
+And just like that, we have successfully scrapped top movie title, year, rating and rank. Let's write our new data to a `csv` file for further analysis.
+
+```{r}
+
+write.csv(movie_tibble, "imdb_top_movies.csv")
+```
+
+
+Now that we have a clean dataset, we can start with our analysis. To do that we need to following the data [analysis process](http://localhost:6540/p/data-analysis-process/).
+
+
+## Ask 
+
+The following questions will guide our analysis;
+
+1. Which movie was ranked the highest?
+2. Which year were those movies?
+3. Which movies made the top 10 list?
+
+
+## Prepare
+
+Our dataset is [IMDB](https://www.imdb.com/chart/top/)'s top rated movies.
+
+
+## Prepare 
+
+The data has the following structure;
+
+```{r}
+glimpse(movie_tibble)
+```
+
+### Visualization
+
+```{r, fig.align='center', fig.width=16, fig.height=10}
+# year <- as.Date(as.character(data_file$evtYear), format = "%Y")
+
+g <- movie_tibble %>% 
+  select(title, rating) %>% 
+  top_n(10, rating) %>% 
+  ggplot(aes(x=reorder(title, rating), y=rating)) +
+  geom_col(aes(fill=title, )) +
+  coord_flip() +
+  geom_text(aes(label = factor(rating)), vjust = 1.5, hjust=1.4, colour = "white") +
+  theme(
+    legend.position = "none") +
+  labs(title="Top 10 Rated movies",
+      x="Movie Title",
+      y="Movie Rank")
+
+g + scale_fill_viridis_d() +
+  theme_fivethirtyeight()
+```
+
+```{r, fig.align='center', fig.width=16, fig.height=10}
+# year <- as.Date(as.character(data_file$evtYear), format = "%Y")
+
+g <- movie_tibble %>% 
+  select(title, rating, year) %>% 
+  top_n(10, rating) %>% 
+  ggplot(aes(x=reorder(title, rating), y=rating)) +
+  geom_col(aes(fill=title)) +
+  coord_flip() +
+  geom_text(aes(label = factor(year)), vjust = 1.5, hjust=1.4, colour = "white") +
+  theme(
+    legend.position = "none") +
+  labs(title="Top 10 rated movies and the year of production",
+      x="Movie Title",
+      y="Movie Rank")
+
+g + scale_fill_calc() +
+  theme_fivethirtyeight()
+```
+
+
+In this article, we scraped data from IMDB website, clean it and visualized it to answer some questions. These are some of the things Data Professional do in real world. I hope this will be a guide for you in your data journey. In subsequent articles I will build a dashboard from the data we scrapped here.
+
+:) Happy Analyzing!

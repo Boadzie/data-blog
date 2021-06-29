@@ -1,0 +1,176 @@
+---
+title: "Web Scrapping with rvest"
+author: "Daniel Boadzie"
+date: '2021-06-29'
+output: pdf_document
+categories: Web Scrapping
+tags:
+- Data Cleaning
+- Data Extraction
+- Web Harvesting
+description: null
+image: https://cdn.pixabay.com/photo/2017/08/16/11/45/pickup-truck-2647492_1280.png
+math: null
+license: null
+hidden: no
+comments: yes
+slug: web-scrapping-with-rvest
+---
+
+<script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
+
+
+<p>Web scrapping is the act of extracting data from web pages. It is one of the best ways of getting data from from a website. You can get data from web elements like tables, divs, etc. with web scrapping.</p>
+<p>Note, that you may need to get permission or find out if a website allows scrapping before doing so from a <code>robots.txt</code> file on a website. Fortunately, the R <code>robotstxt</code> package can help us find out this important information.</p>
+<div id="how-does-it-work" class="section level2">
+<h2>How does it Work</h2>
+<p>To scrape data from a website you need a working knowledge of <code>HTML</code> and <code>CSS</code>. These together with <code>JavaScript</code> are the lingua franca of the web. A good understanding of <code>HMTL</code> tags <code>CSS</code> selectors like class, ids, etc will help you when scrapping a website.</p>
+<p>In this article, we will scrap <a href="https://www.imdb.com/chart/top/">IMDB</a>’s top rated movies. We will focus on the movie’s title, year, rank and rating. Let’s get started.</p>
+<pre class="r"><code># load the libraries
+# pacman enable to easily load multiple packages at a time
+library(pacman)
+
+p_load(rvest, dplyr, ggplot2, robotstxt, stringr, ggthemes)</code></pre>
+<p>Check if the website can be scrapped.</p>
+<pre class="r"><code>paths_allowed(&quot;https://www.imdb.com/chart/top&quot;) # yes we can</code></pre>
+<pre><code>## 
+ www.imdb.com</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<p>We will scrap top movies title, year, rating and then analyze it.</p>
+<pre class="r"><code>url = &quot;https://www.imdb.com/chart/top&quot;
+
+top_movies &lt;- read_html(url) </code></pre>
+<div id="get-all-title" class="section level3">
+<h3>Get all title</h3>
+<pre class="r"><code># get all the titles
+movie_title &lt;- top_movies %&gt;% 
+  html_nodes(&quot;.titleColumn a&quot;) %&gt;% 
+  html_text2() %&gt;% 
+  as.vector()</code></pre>
+</div>
+<div id="get-all-year" class="section level3">
+<h3>Get all year</h3>
+<pre class="r"><code># get all the year
+year &lt;- top_movies %&gt;% 
+  html_nodes(&quot;span.secondaryInfo&quot;) %&gt;% 
+  html_text2() %&gt;% 
+  str_replace_all(&quot;\\(|\\)&quot;, &quot;&quot;) %&gt;% 
+  as.integer()
+
+head(year)</code></pre>
+<pre><code>## [1] 1994 1972 1974 2008 1957 1993</code></pre>
+<pre class="r"><code>typeof(year)</code></pre>
+<pre><code>## [1] &quot;integer&quot;</code></pre>
+</div>
+<div id="get-all-rating" class="section level3">
+<h3>Get all rating</h3>
+<pre class="r"><code># get all rating
+rating &lt;- top_movies %&gt;% 
+  html_nodes(&quot;.ratingColumn strong&quot;) %&gt;% 
+  html_text2() %&gt;% 
+  as.numeric() </code></pre>
+</div>
+<div id="get-all-rank" class="section level3">
+<h3>Get all rank</h3>
+<p>Lets get the ranks as well</p>
+<pre class="r"><code>rank &lt;- top_movies %&gt;% 
+  html_nodes(&quot;td.titleColumn&quot;) %&gt;% 
+  html_text2() %&gt;% 
+  str_split(&quot; &quot;) %&gt;% 
+  lapply(., function(movie){
+    movie[1]
+  }) %&gt;% 
+  str_replace_all(&quot;\\.&quot;, &quot;&quot;) %&gt;% 
+  as.integer()</code></pre>
+</div>
+<div id="create-a-tibble" class="section level3">
+<h3>Create a <code>tibble</code></h3>
+<p>Now lets combine all to create a tibble.</p>
+<pre class="r"><code>movie_tibble &lt;- tibble(
+  title = movie_title,
+  year = year,
+  rating = rating, 
+  rank = rank
+)
+
+head(movie_tibble)</code></pre>
+<pre><code>## # A tibble: 6 x 4
+##   title                     year rating  rank
+##   &lt;chr&gt;                    &lt;int&gt;  &lt;dbl&gt; &lt;int&gt;
+## 1 The Shawshank Redemption  1994    9.2     1
+## 2 The Godfather             1972    9.1     2
+## 3 The Godfather: Part II    1974    9       3
+## 4 The Dark Knight           2008    9       4
+## 5 12 Angry Men              1957    8.9     5
+## 6 Schindler&#39;s List          1993    8.9     6</code></pre>
+<pre class="r"><code>#View(movie_tibble)</code></pre>
+<p>And just like that, we have successfully scrapped top movie title, year, rating and rank. Let’s write our new data to a <code>csv</code> file for further analysis.</p>
+<pre class="r"><code>write.csv(movie_tibble, &quot;imdb_top_movies.csv&quot;)</code></pre>
+<p>Now that we have a clean dataset, we can start with our analysis. To do that we need to following the data <a href="http://localhost:6540/p/data-analysis-process/">analysis process</a>.</p>
+</div>
+</div>
+<div id="ask" class="section level2">
+<h2>Ask</h2>
+<p>The following questions will guide our analysis;</p>
+<ol style="list-style-type: decimal">
+<li>Which movie was ranked the highest?</li>
+<li>Which year were those movies?</li>
+<li>Which movies made the top 10 list?</li>
+</ol>
+</div>
+<div id="prepare" class="section level2">
+<h2>Prepare</h2>
+<p>Our dataset is <a href="https://www.imdb.com/chart/top/">IMDB</a>’s top rated movies.</p>
+</div>
+<div id="prepare-1" class="section level2">
+<h2>Prepare</h2>
+<p>The data has the following structure;</p>
+<pre class="r"><code>glimpse(movie_tibble)</code></pre>
+<pre><code>## Rows: 250
+## Columns: 4
+## $ title  &lt;chr&gt; &quot;The Shawshank Redemption&quot;, &quot;The Godfather&quot;, &quot;The Godfather: Pa…
+## $ year   &lt;int&gt; 1994, 1972, 1974, 2008, 1957, 1993, 2003, 1994, 1966, 2001, 199…
+## $ rating &lt;dbl&gt; 9.2, 9.1, 9.0, 9.0, 8.9, 8.9, 8.9, 8.8, 8.8, 8.8, 8.8, 8.7, 8.7…
+## $ rank   &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, …</code></pre>
+<div id="visualization" class="section level3">
+<h3>Visualization</h3>
+<pre class="r"><code># year &lt;- as.Date(as.character(data_file$evtYear), format = &quot;%Y&quot;)
+
+g &lt;- movie_tibble %&gt;% 
+  select(title, rating) %&gt;% 
+  top_n(10, rating) %&gt;% 
+  ggplot(aes(x=reorder(title, rating), y=rating)) +
+  geom_col(aes(fill=title, )) +
+  coord_flip() +
+  geom_text(aes(label = factor(rating)), vjust = 1.5, hjust=1.4, colour = &quot;white&quot;) +
+  theme(
+    legend.position = &quot;none&quot;) +
+  labs(title=&quot;Top 10 Rated movies&quot;,
+      x=&quot;Movie Title&quot;,
+      y=&quot;Movie Rank&quot;)
+
+g + scale_fill_viridis_d() +
+  theme_fivethirtyeight()</code></pre>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-11-1.png" width="1536" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># year &lt;- as.Date(as.character(data_file$evtYear), format = &quot;%Y&quot;)
+
+g &lt;- movie_tibble %&gt;% 
+  select(title, rating, year) %&gt;% 
+  top_n(10, rating) %&gt;% 
+  ggplot(aes(x=reorder(title, rating), y=rating)) +
+  geom_col(aes(fill=title)) +
+  coord_flip() +
+  geom_text(aes(label = factor(year)), vjust = 1.5, hjust=1.4, colour = &quot;white&quot;) +
+  theme(
+    legend.position = &quot;none&quot;) +
+  labs(title=&quot;Top 10 rated movies and the year of production&quot;,
+      x=&quot;Movie Title&quot;,
+      y=&quot;Movie Rank&quot;)
+
+g + scale_fill_calc() +
+  theme_fivethirtyeight()</code></pre>
+<p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-12-1.png" width="1536" style="display: block; margin: auto;" /></p>
+<p>In this article, we scraped data from IMDB website, clean it and visualized it to answer some questions. These are some of the things Data Professional do in real world. I hope this will be a guide for you in your data journey. In subsequent articles I will build a dashboard from the data we scrapped here.</p>
+<p>:) Happy Analyzing!</p>
+</div>
+</div>
