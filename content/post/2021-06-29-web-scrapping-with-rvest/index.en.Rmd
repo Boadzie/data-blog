@@ -1,9 +1,9 @@
 ---
-title: "Web Scrapping with rvest"
+title: "Web Scraping with rvest"
 author: "Daniel Boadzie"
 date: '2021-06-29'
 output: pdf_document
-categories: Web Scrapping
+categories: Web Scraping
 tags:
 - Data Cleaning
 - Data Extraction
@@ -14,12 +14,12 @@ math: null
 license: null
 hidden: no
 comments: yes
-slug: web-scrapping-with-rvest
+slug: web-scraping-with-rvest
 ---
 
-Web scrapping is the act of extracting data from web pages. It is one of the best ways of getting data from from a website. You can get data from web elements like tables, divs, etc. with web scrapping. 
+Web scraping is the act of extracting data from web pages. It is one of the best ways of getting data from from a website. You can get data from web elements like tables, divs, etc. with web scraping. 
 
-Note, that you may need to get permission or find out if a website allows scrapping before doing so from a `robots.txt` file on a website. Fortunately, the R `robotstxt` package can help us find out this important information.
+Note, that you may need to get permission or find out if a website allows scraping before doing so from a `robots.txt` file on a website. Fortunately, the R `robotstxt` package can help us find out this important information.
 
 ## How does it Work
 
@@ -194,6 +194,6 @@ g + scale_fill_calc() +
 ```
 
 
-In this article, we scraped data from IMDB website, clean it and visualized it to answer some questions. These are some of the things Data Professional do in real world. I hope this will be a guide for you in your data journey. In subsequent articles I will build a dashboard from the data we scrapped here.
+In this article, we scraped data from IMDB website, clean it and visualized it to answer some questions. These are some of the things Data Professional do in real world. I hope this will be a guide for you in your data journey. In subsequent articles I will build a dashboard from the data we scraped here.
 
 :) Happy Analyzing!
