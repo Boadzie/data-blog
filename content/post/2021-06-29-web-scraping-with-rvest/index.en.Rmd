@@ -17,7 +17,7 @@ comments: yes
 slug: web-scraping-with-rvest
 ---
 
-Web scraping is the act of extracting data from web pages. It is one of the best ways of getting data from from a website. You can get data from web elements like tables, divs, etc. with web scraping. 
+Web scraping is the act of extracting data from web pages. It is one of the best ways of getting data from from a website. You can get data from web elements like tables, divs, a tags, etc. with web scraping. 
 
 Note, that you may need to get permission or find out if a website allows scraping before doing so from a `robots.txt` file on a website. Fortunately, the R `robotstxt` package can help us find out this important information.
 
