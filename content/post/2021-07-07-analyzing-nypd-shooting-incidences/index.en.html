@@ -1,0 +1,647 @@
+---
+title: Analyzing NYPD Shooting Incidences
+author: Daniel Boadzie
+date: '2021-07-07'
+slug: analyzing-nypd-shooting-incidences
+categories:
+  - Data Analysis
+  - Data Cleaning
+tags:
+  - Data Analysis
+  - Data Cleaning
+  - Data Exploration
+description: ~
+image: https://cdn.pixabay.com/photo/2020/01/30/18/08/smart-4806137_1280.jpg
+math: ~
+license: ~
+hidden: no
+comments: yes
+---
+
+<script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="npypd-shooting-data-analysis" class="section level2">
+<h2>NPYPD Shooting Data Analysis</h2>
+<p>SQL is the lingua franca of Data Analysis and as such everyone Data Analyst must learn to love and work with SQL. But lets say you love R because its awesome and so want to work in Rstudio; supercool IDE for data professionals. Fortunately, there is a way to work with SQL in R. Yes! you can manipulate dataframes in R using pure, unadulterated SQL. How cool is that?</p>
+<p>In this article we will use SQL to query R dataframes. We will use the <code>sqldf</code> package to accomplish our goal.</p>
+<div id="ask" class="section level3">
+<h3>Ask</h3>
+<p>Lets try to find answers to the following questions</p>
+<ol style="list-style-type: decimal">
+<li>How many rows are in the dataset?</li>
+<li>What is the count of victims and perpetrators?</li>
+<li>Which precinct had the highest crimes?</li>
+</ol>
+</div>
+<div id="prepare" class="section level3">
+<h3>Prepare</h3>
+<p>The dataset contains every shooting incident that occurred in NYC going back to 2006 to end of year(2020). The data can be found on <a href="https://www.kaggle.com/guecoraph/nypd-shooting-history">kaggle</a>.</p>
+<pre class="r"><code>nypd &lt;- read_csv(&quot;NYPD Shooting Incident - Data 2006-2021.csv&quot;)</code></pre>
+<pre><code>## 
+## ── Column specification ────────────────────────────────────────────────────────
+## cols(
+##   INCIDENT_KEY = col_double(),
+##   OCCUR_DATE = col_character(),
+##   OCCUR_TIME = col_time(format = &quot;&quot;),
+##   BORO = col_character(),
+##   PRECINCT = col_double(),
+##   JURISDICTION_CODE = col_double(),
+##   LOCATION_DESC = col_character(),
+##   STATISTICAL_MURDER_FLAG = col_logical(),
+##   PERP_AGE_GROUP = col_character(),
+##   PERP_SEX = col_character(),
+##   PERP_RACE = col_character(),
+##   VIC_AGE_GROUP = col_character(),
+##   VIC_SEX = col_character(),
+##   VIC_RACE = col_character(),
+##   X_COORD_CD = col_double(),
+##   Y_COORD_CD = col_double(),
+##   Latitude = col_double(),
+##   Longitude = col_double(),
+##   Lon_Lat = col_character()
+## )</code></pre>
+<pre><code>## Warning: 1902 parsing failures.
+##  row        col               expected    actual                                          file
+## 3207 X_COORD_CD no trailing characters 982,680   &#39;NYPD Shooting Incident - Data 2006-2021.csv&#39;
+## 3207 Y_COORD_CD no trailing characters 206,254   &#39;NYPD Shooting Incident - Data 2006-2021.csv&#39;
+## 3208 X_COORD_CD no trailing characters 1,023,220 &#39;NYPD Shooting Incident - Data 2006-2021.csv&#39;
+## 3208 Y_COORD_CD no trailing characters 265,927   &#39;NYPD Shooting Incident - Data 2006-2021.csv&#39;
+## 3209 X_COORD_CD no trailing characters 1,017,442 &#39;NYPD Shooting Incident - Data 2006-2021.csv&#39;
+## .... .......... ...................... ......... .............................................
+## See problems(...) for more details.</code></pre>
+<pre class="r"><code>skim(nypd) # lets get to know our data</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-2">Table 1: </span>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td align="left">Name</td>
+<td align="left">nypd</td>
+</tr>
+<tr class="even">
+<td align="left">Number of rows</td>
+<td align="left">23865</td>
+</tr>
+<tr class="odd">
+<td align="left">Number of columns</td>
+<td align="left">19</td>
+</tr>
+<tr class="even">
+<td align="left">_______________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Column type frequency:</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">character</td>
+<td align="left">10</td>
+</tr>
+<tr class="odd">
+<td align="left">difftime</td>
+<td align="left">1</td>
+</tr>
+<tr class="even">
+<td align="left">logical</td>
+<td align="left">1</td>
+</tr>
+<tr class="odd">
+<td align="left">numeric</td>
+<td align="left">7</td>
+</tr>
+<tr class="even">
+<td align="left">________________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Group variables</td>
+<td align="left">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">min</th>
+<th align="right">max</th>
+<th align="right">empty</th>
+<th align="right">n_unique</th>
+<th align="right">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">OCCUR_DATE</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">8</td>
+<td align="right">10</td>
+<td align="right">0</td>
+<td align="right">5137</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">BORO</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">5</td>
+<td align="right">13</td>
+<td align="right">0</td>
+<td align="right">5</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">LOCATION_DESC</td>
+<td align="right">13743</td>
+<td align="right">0.42</td>
+<td align="right">3</td>
+<td align="right">25</td>
+<td align="right">0</td>
+<td align="right">39</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">PERP_AGE_GROUP</td>
+<td align="right">8629</td>
+<td align="right">0.64</td>
+<td align="right">3</td>
+<td align="right">7</td>
+<td align="right">0</td>
+<td align="right">9</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">PERP_SEX</td>
+<td align="right">8595</td>
+<td align="right">0.64</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">3</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">PERP_RACE</td>
+<td align="right">8595</td>
+<td align="right">0.64</td>
+<td align="right">5</td>
+<td align="right">30</td>
+<td align="right">0</td>
+<td align="right">7</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">VIC_AGE_GROUP</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">3</td>
+<td align="right">7</td>
+<td align="right">0</td>
+<td align="right">6</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">VIC_SEX</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">3</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">VIC_RACE</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">5</td>
+<td align="right">30</td>
+<td align="right">0</td>
+<td align="right">7</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Lon_Lat</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">29</td>
+<td align="right">45</td>
+<td align="right">0</td>
+<td align="right">10658</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: difftime</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="left">min</th>
+<th align="left">max</th>
+<th align="left">median</th>
+<th align="right">n_unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">OCCUR_TIME</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="left">0 secs</td>
+<td align="left">86340 secs</td>
+<td align="left">15:00:00</td>
+<td align="right">1402</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: logical</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">mean</th>
+<th align="left">count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">STATISTICAL_MURDER_FLAG</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.19</td>
+<td align="left">FAL: 19313, TRU: 4552</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table>
+<colgroup>
+<col width="13%" />
+<col width="7%" />
+<col width="10%" />
+<col width="9%" />
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+<col width="9%" />
+<col width="9%" />
+<col width="4%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">mean</th>
+<th align="right">sd</th>
+<th align="right">p0</th>
+<th align="right">p25</th>
+<th align="right">p50</th>
+<th align="right">p75</th>
+<th align="right">p100</th>
+<th align="left">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">INCIDENT_KEY</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">103740789.86</td>
+<td align="right">61896809.17</td>
+<td align="right">9953245.00</td>
+<td align="right">55803387.00</td>
+<td align="right">84085846.00</td>
+<td align="right">153348406.00</td>
+<td align="right">226542635.00</td>
+<td align="left">▅▇▁▃▃</td>
+</tr>
+<tr class="even">
+<td align="left">PRECINCT</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">66.15</td>
+<td align="right">27.13</td>
+<td align="right">1.00</td>
+<td align="right">44.00</td>
+<td align="right">69.00</td>
+<td align="right">81.00</td>
+<td align="right">123.00</td>
+<td align="left">▂▇▆▅▅</td>
+</tr>
+<tr class="odd">
+<td align="left">JURISDICTION_CODE</td>
+<td align="right">2</td>
+<td align="right">1.00</td>
+<td align="right">0.33</td>
+<td align="right">0.74</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">2.00</td>
+<td align="left">▇▁▁▁▂</td>
+</tr>
+<tr class="even">
+<td align="left">X_COORD_CD</td>
+<td align="right">951</td>
+<td align="right">0.96</td>
+<td align="right">1009359.58</td>
+<td align="right">18585.99</td>
+<td align="right">914928.00</td>
+<td align="right">999880.00</td>
+<td align="right">1007654.00</td>
+<td align="right">1016934.50</td>
+<td align="right">1066815.00</td>
+<td align="left">▁▁▇▇▂</td>
+</tr>
+<tr class="odd">
+<td align="left">Y_COORD_CD</td>
+<td align="right">951</td>
+<td align="right">0.96</td>
+<td align="right">207233.46</td>
+<td align="right">31793.20</td>
+<td align="right">125757.00</td>
+<td align="right">182565.50</td>
+<td align="right">193413.00</td>
+<td align="right">239150.00</td>
+<td align="right">271128.00</td>
+<td align="left">▁▇▇▆▆</td>
+</tr>
+<tr class="even">
+<td align="left">Latitude</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">40.74</td>
+<td align="right">0.09</td>
+<td align="right">40.51</td>
+<td align="right">40.67</td>
+<td align="right">40.70</td>
+<td align="right">40.82</td>
+<td align="right">40.91</td>
+<td align="left">▁▇▇▆▆</td>
+</tr>
+<tr class="odd">
+<td align="left">Longitude</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">-73.91</td>
+<td align="right">0.07</td>
+<td align="right">-74.25</td>
+<td align="right">-73.94</td>
+<td align="right">-73.92</td>
+<td align="right">-73.88</td>
+<td align="right">-73.70</td>
+<td align="left">▁▁▇▇▂</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># View(nypd)</code></pre>
+<p>The <code>skim</code> function from the <code>skimr</code> provide an easy way to get valuable metadata. Information like data types and stats is invaluable in your analysis.</p>
+</div>
+<div id="process" class="section level3">
+<h3>Process</h3>
+<pre class="r"><code># let&#39;s clean up column names a bit
+nypd &lt;- clean_names(nypd)
+colnames(nypd)</code></pre>
+<pre><code>##  [1] &quot;incident_key&quot;            &quot;occur_date&quot;             
+##  [3] &quot;occur_time&quot;              &quot;boro&quot;                   
+##  [5] &quot;precinct&quot;                &quot;jurisdiction_code&quot;      
+##  [7] &quot;location_desc&quot;           &quot;statistical_murder_flag&quot;
+##  [9] &quot;perp_age_group&quot;          &quot;perp_sex&quot;               
+## [11] &quot;perp_race&quot;               &quot;vic_age_group&quot;          
+## [13] &quot;vic_sex&quot;                 &quot;vic_race&quot;               
+## [15] &quot;x_coord_cd&quot;              &quot;y_coord_cd&quot;             
+## [17] &quot;latitude&quot;                &quot;longitude&quot;              
+## [19] &quot;lon_lat&quot;</code></pre>
+<pre class="r"><code># look at the data structure
+glimpse(nypd)</code></pre>
+<pre><code>## Rows: 23,865
+## Columns: 19
+## $ incident_key            &lt;dbl&gt; 226323781, 226323779, 226323782, 226321042, 22…
+## $ occur_date              &lt;chr&gt; &quot;3/30/2021&quot;, &quot;3/30/2021&quot;, &quot;3/30/2021&quot;, &quot;3/30/2…
+## $ occur_time              &lt;time&gt; 23:45:00, 16:20:00, 23:15:00, 13:35:00, 22:23…
+## $ boro                    &lt;chr&gt; &quot;QUEENS&quot;, &quot;BROOKLYN&quot;, &quot;BRONX&quot;, &quot;MANHATTAN&quot;, &quot;B…
+## $ precinct                &lt;dbl&gt; 100, 73, 42, 7, 45, 44, 34, 73, 23, 60, 6, 52,…
+## $ jurisdiction_code       &lt;dbl&gt; 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2…
+## $ location_desc           &lt;chr&gt; &quot;MULTI DWELL - PUBLIC HOUS&quot;, &quot;MULTI DWELL - PU…
+## $ statistical_murder_flag &lt;lgl&gt; FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE…
+## $ perp_age_group          &lt;chr&gt; NA, &quot;25-44&quot;, NA, &quot;18-24&quot;, NA, NA, NA, &quot;18-24&quot;,…
+## $ perp_sex                &lt;chr&gt; NA, &quot;M&quot;, NA, &quot;M&quot;, NA, NA, NA, &quot;M&quot;, NA, NA, NA,…
+## $ perp_race               &lt;chr&gt; NA, &quot;BLACK&quot;, NA, &quot;BLACK&quot;, NA, NA, NA, &quot;BLACK&quot;,…
+## $ vic_age_group           &lt;chr&gt; &quot;25-44&quot;, &quot;25-44&quot;, &quot;18-24&quot;, &quot;18-24&quot;, &quot;18-24&quot;, &quot;…
+## $ vic_sex                 &lt;chr&gt; &quot;M&quot;, &quot;M&quot;, &quot;M&quot;, &quot;M&quot;, &quot;M&quot;, &quot;M&quot;, &quot;F&quot;, &quot;M&quot;, &quot;M&quot;, &quot;…
+## $ vic_race                &lt;chr&gt; &quot;BLACK&quot;, &quot;BLACK&quot;, &quot;BLACK&quot;, &quot;BLACK&quot;, &quot;BLACK HIS…
+## $ x_coord_cd              &lt;dbl&gt; 1036867, 1009548, 1012074, 987721, 1032091, 10…
+## $ y_coord_cd              &lt;dbl&gt; 153432, 187629, 240410, 202253, 241976, 237572…
+## $ latitude                &lt;dbl&gt; 40.58766, 40.68165, 40.82651, 40.72182, 40.830…
+## $ longitude               &lt;dbl&gt; -73.81056, -73.90879, -73.89946, -73.98748, -7…
+## $ lon_lat                 &lt;chr&gt; &quot;POINT (-73.81055977899997 40.587663570000075)…</code></pre>
+<p>Lets get some statistics on the numeric columns.</p>
+<pre class="r"><code>nypd %&gt;% 
+  select_if(is.numeric) %&gt;% 
+  describe()</code></pre>
+<pre><code>##                   vars     n         mean          sd      median      trimmed
+## incident_key         1 23865 103740789.86 61896809.17 84085846.00 100021715.99
+## precinct             2 23865        66.15       27.13       69.00        65.45
+## jurisdiction_code    3 23863         0.33        0.74        0.00         0.16
+## x_coord_cd           4 22914   1009359.58    18585.99  1007654.00   1008692.35
+## y_coord_cd           5 22914    207233.46    31793.20   193413.00    206733.80
+## latitude             6 23865        40.74        0.09       40.70        40.73
+## longitude            7 23865       -73.91        0.07      -73.92       -73.91
+##                           mad        min          max        range  skew
+## incident_key      75151220.81 9953245.00 226542635.00 216589390.00  0.48
+## precinct                32.62       1.00       123.00       122.00  0.19
+## jurisdiction_code        0.00       0.00         2.00         2.00  1.80
+## x_coord_cd           12074.29  914928.00   1066815.00    151887.00 -0.13
+## y_coord_cd           32250.26  125757.00    271128.00    145371.00  0.21
+## latitude                 0.09      40.51        40.91         0.40  0.21
+## longitude                0.04     -74.25       -73.70         0.55 -0.13
+##                   kurtosis        se
+## incident_key         -0.99 400670.66
+## precinct             -0.72      0.18
+## jurisdiction_code     1.23      0.00
+## x_coord_cd            2.47    122.78
+## y_coord_cd           -1.34    210.03
+## latitude             -1.35      0.00
+## longitude             2.48      0.00</code></pre>
+<p>Now lets see the power of the <code>sqldf</code> package for querying our data</p>
+<pre class="r"><code>nypd &lt;- nypd %&gt;% 
+  mutate(occur_time = as.POSIXct(occur_time), 
+         incident_key = as.numeric(incident_key),
+         occur_date = as.Date(occur_date,  &quot;%m/%d/%Y&quot;))
+ 
+class(nypd$occur_time) </code></pre>
+<pre><code>## [1] &quot;POSIXct&quot; &quot;POSIXt&quot;</code></pre>
+<pre class="r"><code># get only the time from the date
+nypd$occur_time &lt;- nypd$occur_time %&gt;% 
+  format(format = &quot;%H:%M:%S&quot;)</code></pre>
+<p>Now lets start using SQL to make some queries</p>
+<pre class="r"><code># select the first 10  rows from my df
+
+sqldf(&quot;SELECT * FROM nypd LIMIT 10&quot;)</code></pre>
+<pre><code>##    incident_key occur_date occur_time      boro precinct jurisdiction_code
+## 1     226323781 2021-03-30   23:45:00    QUEENS      100                 0
+## 2     226323779 2021-03-30   16:20:00  BROOKLYN       73                 2
+## 3     226323782 2021-03-30   23:15:00     BRONX       42                 2
+## 4     226321042 2021-03-30   13:35:00 MANHATTAN        7                 0
+## 5     226320600 2021-03-30   22:23:00     BRONX       45                 0
+## 6     226321041 2021-03-30   02:25:00     BRONX       44                 0
+## 7     226323780 2021-03-30   21:06:00 MANHATTAN       34                 0
+## 8     226321324 2021-03-30   16:25:00  BROOKLYN       73                 0
+## 9     226266743 2021-03-29   23:13:00 MANHATTAN       23                 0
+## 10    226230158 2021-03-28   22:00:00  BROOKLYN       60                 0
+##                location_desc statistical_murder_flag perp_age_group perp_sex
+## 1  MULTI DWELL - PUBLIC HOUS                   FALSE           &lt;NA&gt;     &lt;NA&gt;
+## 2  MULTI DWELL - PUBLIC HOUS                   FALSE          25-44        M
+## 3  MULTI DWELL - PUBLIC HOUS                   FALSE           &lt;NA&gt;     &lt;NA&gt;
+## 4                       &lt;NA&gt;                   FALSE          18-24        M
+## 5                       &lt;NA&gt;                    TRUE           &lt;NA&gt;     &lt;NA&gt;
+## 6                       &lt;NA&gt;                   FALSE           &lt;NA&gt;     &lt;NA&gt;
+## 7                       &lt;NA&gt;                   FALSE           &lt;NA&gt;     &lt;NA&gt;
+## 8                       &lt;NA&gt;                   FALSE          18-24        M
+## 9                       &lt;NA&gt;                    TRUE           &lt;NA&gt;     &lt;NA&gt;
+## 10                  HOSPITAL                   FALSE           &lt;NA&gt;     &lt;NA&gt;
+##    perp_race vic_age_group vic_sex       vic_race x_coord_cd y_coord_cd
+## 1       &lt;NA&gt;         25-44       M          BLACK    1036867     153432
+## 2      BLACK         25-44       M          BLACK    1009548     187629
+## 3       &lt;NA&gt;         18-24       M          BLACK    1012074     240410
+## 4      BLACK         18-24       M          BLACK     987721     202253
+## 5       &lt;NA&gt;         18-24       M BLACK HISPANIC    1032091     241976
+## 6       &lt;NA&gt;           &lt;18       M          BLACK    1004227     237572
+## 7       &lt;NA&gt;         18-24       F WHITE HISPANIC    1003908     251675
+## 8      BLACK         25-44       M        UNKNOWN    1009399     183349
+## 9       &lt;NA&gt;         25-44       M WHITE HISPANIC    1000267     228200
+## 10      &lt;NA&gt;         25-44       M          WHITE     993627     152877
+##    latitude longitude                                       lon_lat
+## 1  40.58766 -73.81056 POINT (-73.81055977899997 40.587663570000075)
+## 2  40.68165 -73.90879  POINT (-73.90879049699998 40.68164709200005)
+## 3  40.82651 -73.89946  POINT (-73.89946470899997 40.82650984800006)
+## 4  40.72182 -73.98748  POINT (-73.98747935099993 40.72182201900005)
+## 5  40.83072 -73.82713  POINT (-73.82712605899997 40.83072232800004)
+## 6  40.81874 -73.92783 POINT (-73.92782678799993 40.818741576000036)
+## 7  40.85745 -73.92894       POINT (-73.928937965 40.85745092700005)
+## 8  40.66990 -73.90934  POINT (-73.90934367999995 40.66989988500006)
+## 9  40.79303 -73.94216 POINT (-73.94215617799993 40.793026087000044)
+## 10 40.58629 -73.96624 POINT (-73.96624131199997 40.586291409000076)</code></pre>
+<p>find the number of rows</p>
+<pre class="r"><code>sqldf(&quot;select count(*) as num_rows from nypd&quot;)</code></pre>
+<pre><code>##   num_rows
+## 1    23865</code></pre>
+<p>select where all female victims</p>
+<pre class="r"><code>sqldf(&quot;select 
+      precinct, 
+      vic_race, 
+      vic_sex 
+      from nypd 
+      where vic_sex == &#39;F&#39; limit 10&quot;)</code></pre>
+<pre><code>##    precinct       vic_race vic_sex
+## 1        34 WHITE HISPANIC       F
+## 2        52 WHITE HISPANIC       F
+## 3        52 WHITE HISPANIC       F
+## 4        52 WHITE HISPANIC       F
+## 5        52 WHITE HISPANIC       F
+## 6        52 WHITE HISPANIC       F
+## 7        73        UNKNOWN       F
+## 8        44          BLACK       F
+## 9        90 WHITE HISPANIC       F
+## 10      114 BLACK HISPANIC       F</code></pre>
+<pre class="r"><code># count the number of rows where the victim is  Black
+sqldf(&quot;select count(*) from nypd where vic_race == &#39;BLACK&#39;&quot;)</code></pre>
+<pre><code>##   count(*)
+## 1    17049</code></pre>
+<p>count the number of rows where the perpetrator is Black</p>
+<pre class="r"><code>sqldf(&quot;select count(*) from nypd where perp_race == &#39;BLACK&#39;&quot;)</code></pre>
+<pre><code>##   count(*)
+## 1     9944</code></pre>
+<pre class="r"><code># count the number of rows where the victim is a White Hispanic
+sqldf(&quot;select count(*) from nypd where vic_race == &#39;WHITE HISPANIC&#39;&quot;)</code></pre>
+<pre><code>##   count(*)
+## 1     3479</code></pre>
+<pre class="r"><code># count groups by victim&#39;s sex
+sqldf(&quot;select 
+      boro,
+      precinct,
+      vic_sex,
+      count(vic_sex) as count_vic_sex
+      
+      from nypd
+      group by vic_sex
+      
+      &quot;)</code></pre>
+<pre><code>##        boro precinct vic_sex count_vic_sex
+## 1 MANHATTAN       34       F          2230
+## 2    QUEENS      100       M         21614
+## 3     BRONX       44       U            21</code></pre>
+<p>count distinct race of victims</p>
+<pre class="r"><code>sqldf(&quot;select 
+      distinct(vic_race) as distinct_race
+      from nypd&quot;
+      )</code></pre>
+<pre><code>##                    distinct_race
+## 1                          BLACK
+## 2                 BLACK HISPANIC
+## 3                 WHITE HISPANIC
+## 4                        UNKNOWN
+## 5                          WHITE
+## 6       ASIAN / PACIFIC ISLANDER
+## 7 AMERICAN INDIAN/ALASKAN NATIVE</code></pre>
+<pre class="r"><code># group by race and find count of perps and vics by race
+sqldf(&quot;select 
+      perp_race, 
+      vic_race,
+      count(vic_race) as vic_count,
+      count(perp_race) as perp_count
+      from nypd
+      group by vic_race
+      &quot;)</code></pre>
+<pre><code>##   perp_race                       vic_race vic_count perp_count
+## 1     BLACK AMERICAN INDIAN/ALASKAN NATIVE         9          7
+## 2      &lt;NA&gt;       ASIAN / PACIFIC ISLANDER       323        237
+## 3      &lt;NA&gt;                          BLACK     17049      10421
+## 4      &lt;NA&gt;                 BLACK HISPANIC      2280       1512
+## 5     BLACK                        UNKNOWN       107         71
+## 6      &lt;NA&gt;                          WHITE       618        480
+## 7      &lt;NA&gt;                 WHITE HISPANIC      3479       2542</code></pre>
+<pre class="r"><code>sqldf(&quot;select 
+      vic_race, 
+      precinct,
+      count(precinct) as precinct_count
+      from nypd
+      group by precinct, vic_race
+      limit 10
+      &quot;)</code></pre>
+<pre><code>##                    vic_race precinct precinct_count
+## 1  ASIAN / PACIFIC ISLANDER        1              1
+## 2                     BLACK        1             13
+## 3            BLACK HISPANIC        1              3
+## 4                     WHITE        1              2
+## 5            WHITE HISPANIC        1              2
+## 6  ASIAN / PACIFIC ISLANDER        5              8
+## 7                     BLACK        5             22
+## 8            BLACK HISPANIC        5              6
+## 9                     WHITE        5              1
+## 10           WHITE HISPANIC        5             11</code></pre>
+<pre class="r"><code># number of precinct
+sqldf(&quot;select 
+      count(distinct(precinct) ) as number_of_precinct
+      from nypd
+      &quot;)</code></pre>
+<pre><code>##   number_of_precinct
+## 1                 77</code></pre>
+<p>Isn’t this cool? I think its great!</p>
+<p>Clearly, there is more you can do with this package. I look forward to using this more in my work. I hope you will too.</p>
+<p>Happy Analyzing!!</p>
+</div>
+</div>

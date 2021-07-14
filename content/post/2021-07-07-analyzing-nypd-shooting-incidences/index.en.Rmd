@@ -1,0 +1,204 @@
+---
+title: Analyzing NYPD Shooting Incidences
+author: Daniel Boadzie
+date: '2021-07-07'
+slug: analyzing-nypd-shooting-incidences
+categories:
+  - Data Analysis
+  - Data Cleaning
+tags:
+  - Data Analysis
+  - Data Cleaning
+  - Data Exploration
+description: ~
+image: https://cdn.pixabay.com/photo/2020/01/30/18/08/smart-4806137_1280.jpg
+math: ~
+license: ~
+hidden: no
+comments: yes
+---
+
+## NPYPD Shooting Data Analysis
+
+SQL is the lingua franca of Data Analysis and as such everyone Data Analyst must learn to love and work with SQL. But lets say you love R because its awesome and so want to work in Rstudio; supercool IDE for data professionals. Fortunately, there is a way to work with SQL in R. Yes! you can manipulate dataframes in R using pure, unadulterated SQL. How cool is that?
+
+In this article we will use SQL to query R dataframes. We will use the `sqldf` package to accomplish our goal.
+
+### Ask
+ Lets try to find answers to the following questions
+ 
+ 1. How many rows are in the dataset?
+ 2. What is the count of victims and perpetrators?
+ 3. Which precinct had the highest crimes?
+
+### Prepare 
+
+The dataset contains every shooting incident that occurred in NYC going back to 2006 to end of year(2020). The data can be found on [kaggle](https://www.kaggle.com/guecoraph/nypd-shooting-history).
+
+```{r, echo=FALSE}
+library(pacman)
+
+p_load(readr, stringr, lubridate, dplyr, sqldf, skimr, psych, janitor, DBI, dbplyr)
+```
+
+```{r}
+nypd <- read_csv("NYPD Shooting Incident - Data 2006-2021.csv")
+skim(nypd) # lets get to know our data
+
+# View(nypd)
+```
+The `skim` function from the `skimr` provide an easy way to get valuable metadata. Information like data types and stats is invaluable in your analysis.
+
+
+### Process
+
+```{r}
+# let's clean up column names a bit
+nypd <- clean_names(nypd)
+colnames(nypd)
+```
+
+```{r}
+# look at the data structure
+glimpse(nypd)
+```
+
+
+Lets get some statistics on the numeric columns.
+
+```{r}
+nypd %>% 
+  select_if(is.numeric) %>% 
+  describe()
+```
+
+Now lets see the power of the `sqldf` package for querying our data
+
+```{r}
+
+nypd <- nypd %>% 
+  mutate(occur_time = as.POSIXct(occur_time), 
+         incident_key = as.numeric(incident_key),
+         occur_date = as.Date(occur_date,  "%m/%d/%Y"))
+ 
+class(nypd$occur_time) 
+```
+
+```{r}
+# get only the time from the date
+nypd$occur_time <- nypd$occur_time %>% 
+  format(format = "%H:%M:%S")
+```
+
+
+Now lets start using SQL to make some queries
+
+```{r}
+# select the first 10  rows from my df
+
+sqldf("SELECT * FROM nypd LIMIT 10")
+```
+find the number of rows
+
+```{r}
+
+sqldf("select count(*) as num_rows from nypd")
+```
+
+select where all female victims
+
+```{r}
+sqldf("select 
+      precinct, 
+      vic_race, 
+      vic_sex 
+      from nypd 
+      where vic_sex == 'F' limit 10")
+```
+
+```{r}
+# count the number of rows where the victim is  Black
+sqldf("select count(*) from nypd where vic_race == 'BLACK'")
+```
+
+count the number of rows where the perpetrator is  Black
+```{r}
+ 
+sqldf("select count(*) from nypd where perp_race == 'BLACK'")
+```
+
+
+```{r}
+# count the number of rows where the victim is a White Hispanic
+sqldf("select count(*) from nypd where vic_race == 'WHITE HISPANIC'")
+```
+
+```{r}
+# count groups by victim's sex
+sqldf("select 
+      boro,
+      precinct,
+      vic_sex,
+      count(vic_sex) as count_vic_sex
+      
+      from nypd
+      group by vic_sex
+      
+      ")
+```
+
+
+count distinct race of victims
+
+```{r}
+sqldf("select 
+      distinct(vic_race) as distinct_race
+      from nypd"
+      )
+```
+
+```{r}
+# group by race and find count of perps and vics by race
+sqldf("select 
+      perp_race, 
+      vic_race,
+      count(vic_race) as vic_count,
+      count(perp_race) as perp_count
+      from nypd
+      group by vic_race
+      ")
+```
+
+
+```{r}
+sqldf("select 
+      vic_race, 
+      precinct,
+      count(precinct) as precinct_count
+      from nypd
+      group by precinct, vic_race
+      limit 10
+      ")
+```
+
+
+```{r}
+
+
+# number of precinct
+sqldf("select 
+      count(distinct(precinct) ) as number_of_precinct
+      from nypd
+      ")
+
+```
+
+
+
+
+Isn't this cool? I think its great!
+
+Clearly, there is more you can do with this package. I look forward to using this more in my work. I hope you will too.
+
+Happy Analyzing!!
+
